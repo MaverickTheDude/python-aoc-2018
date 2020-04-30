@@ -1,36 +1,29 @@
-from urllib.request import urlopen
-from bs4 import BeautifulSoup
+import urllib.request, urllib.parse, urllib.error
+import xml.etree.ElementTree as ET
 import ssl
-import re
-
-
-def gettags(url, ctx):
-    html = urlopen(url, context=ctx).read()
-    soup = BeautifulSoup(html, "html.parser")
-    tags = soup('a')
-    return tags
 
 # Ignore SSL certificate errors
 ctx = ssl.create_default_context()
 ctx.check_hostname = False
 ctx.verify_mode = ssl.CERT_NONE
 
-#url = 'http://py4e-data.dr-chuck.net/known_by_Fikret.html'
-url = 'http://py4e-data.dr-chuck.net/known_by_Saphyre.html'
-tags = gettags(url, ctx)
-posSet = 18
-bounces = 7
+# url = 'http://py4e-data.dr-chuck.net/comments_42.xml'
+url = 'http://py4e-data.dr-chuck.net/comments_448599.xml'
 
-for i in range(1, bounces+1):
-    pos = 1
-    for tag in tags:
-        if pos < posSet:
-            pos += 1
-            continue
-        print(tag.get('href', None))
-        url = tag.get('href', None)
-        tags = gettags(url, ctx)
-        name = re.findall('_by_(.+).html', url)
-        if len(name) > 1: print('fixme')
-        break
-print(name[0])
+print('Retrieving', url)
+uh = urllib.request.urlopen(url, context=ctx)
+
+data = uh.read()
+print('Retrieved', len(data), 'characters')
+print(data.decode())
+tree = ET.fromstring(data)
+
+results = tree.findall('comments/comment')
+
+sum = 0
+for res in results:
+    x = res.find('count').text
+    sum += int(x)
+
+print('number of results:', len(results))
+print(sum)
