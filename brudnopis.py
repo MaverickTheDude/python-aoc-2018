@@ -1,14 +1,27 @@
 import hashlib
 
-str = "dupa"
+import re
+word = "#4 @ 184,299: 27x11"
+wzor = "#[0-9]+ @ ([0-9]+),([0-9]+): ([0-9]+)x([0-9]+)"
+p = re.compile(wzor)
 
-result = hashlib.sha1(str.encode())
-out = result.hexdigest()
+m = p.search(word)
+x = m.groups()
 
-# printing the equivalent hexadecimal value.
-print("The hexadecimal SHA1: ")
-print(out[0:5])
-print(out[5:])
+(a,b,c,d) = [int(i) for i in x]
+print(a,b,c,d)
+print(type(a))
+
+
+# str = "dupa"
+#
+# result = hashlib.sha1(str.encode())
+# out = result.hexdigest()
+#
+# # printing the equivalent hexadecimal value.
+# print("The hexadecimal SHA1: ")
+# print(out[0:5])
+# print(out[5:])
 
 ## zachowane dla ogarniecia eleganckiej skladni jaka generuje liczby w trojkacie
 # def write_list(list):
