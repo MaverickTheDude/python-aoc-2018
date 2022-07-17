@@ -1,41 +1,26 @@
-import hashlib
+x = [12, 50]
+y = [42, 58]
 
-import re
-word = "#4 @ 184,299: 27x11"
-wzor = "#[0-9]+ @ ([0-9]+),([0-9]+): ([0-9]+)x([0-9]+)"
-p = re.compile(wzor)
+for i, j in range(x,y):
+    print(i)
 
-m = p.search(word)
-x = m.groups()
-
-(a,b,c,d) = [int(i) for i in x]
-print(a,b,c,d)
-print(type(a))
+# import re
 
 
-# str = "dupa"
-#
-# result = hashlib.sha1(str.encode())
-# out = result.hexdigest()
-#
-# # printing the equivalent hexadecimal value.
-# print("The hexadecimal SHA1: ")
-# print(out[0:5])
-# print(out[5:])
+# def parse(line: str) -> tuple:
+#     res = expr.search(line)
+#     groups = res.groups()
+#     (m, d, h, min, x, id) = [elm for elm in groups]  # list comprehension on tuple
+#     if x == "Guard": id = int(id)
+#     else: id = -1
+#     return int(m), int(d), int(h), int(min), id
 
-## zachowane dla ogarniecia eleganckiej skladni jaka generuje liczby w trojkacie
-# def write_list(list):
-#     print(' '.join([str(item) for item in list]).center(30))
-#
-# x = 10
-# line = [1]
-# write_list(line)
-# for i in range(int(x) - 1):
-#     next_line = [1]
-#     for j in range(len(line) - 1):
-#         next_line.append(line[j] + line[j + 1])
-#     next_line.append(1)
-#     line = next_line
-#     write_list(line)
-#
+# PATTERN = "\[\d+-(\d+)-(\d+) (\d+):(\d+)\] (\w+) \#?(\w+)"
+# expr = re.compile(PATTERN)
+
+
+# fh = open("inputs/aoc-4.txt", 'r')
+# for line in fh:
+#     m, d, h, min, id = parse(line)
+#     print(m,d,h,min,id)
 

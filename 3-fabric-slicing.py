@@ -4,11 +4,11 @@ N = 1000
 
 # translate 2d coordinate onto 1d; column-major order
 # x - go right, y - go down
-def idx(x, y):
+def idx(x: int, y: int) -> int:
     return x + y*N
 
 
-def coords(line):
+def coords(line: str) -> tuple:
     m = expr.search(line)
     groups = m.groups()
     (i, x, y, m, n) = [int(i) for i in groups]  # list comprehension on tuple
@@ -40,7 +40,7 @@ for line in fh:
     for i in range(x, x+m):
         for j in range(y, y+n):
             ind = idx(i, j)
-            print(fieldMap[ind])
+            #print(fieldMap[ind])
             if fieldMap[ind] > 1:
                 overlap = True
                 break
