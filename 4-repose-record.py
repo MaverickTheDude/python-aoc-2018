@@ -1,4 +1,5 @@
 import re
+import copy
 SHORTER_MONTHS = [4, 6, 9, 11]
 
 class Entry:
@@ -40,6 +41,7 @@ class Entry:
         return f"guard {self.guardId}: sleep times {self.sleep}, wake times {self.wake}"
 
 def pickMaxFromDict(dictionary) -> int:
+    # returns a key of max value in dictionary.values()
     keyList = list(dictionary.keys())
     valList = list(dictionary.values())
     maxValue = max(valList)
@@ -87,30 +89,33 @@ Registry.sort() # note: you can compare tuples (pretty intuitively)
 # for elm in Registry:
     # print(elm[0], "-", elm[1], ": ", Log[elm])
 
-# compute which guard was the sleepiest
-# (create dict[#guard] = maxSleep)
-guardLog = {}
-for elmKey in Log:
-    entry = Log[elmKey]
-    guardID = entry.guardId
-    if guardID in guardLog:
-        guardLog[guardID] += entry.countSleep()
-    else:
-        guardLog[guardID] = entry.countSleep()
-# (pick key for max value)
-guardID = pickMaxFromDict(guardLog)
-
-# Find the best possible hour
-minuteLog = {}
+# compute all guard sleep log
+# (create empty dict[min]->incidents)
+sleepLog = {}
 for i in range(60):
-    minuteLog[i] = 0
+    sleepLog[i] = 0
 
+# (create dict[#guard] -> 'dict[min]->incidents')
+guardLog = {}
 for entry in Log.values():
-    if entry.guardId == guardID:
-        print(entry)
+    guardId = entry.guardId
+    if guardId in guardLog:
         minutesList = entry.getSleepMinutes()
         for i in minutesList:
-            minuteLog[i] += 1
+            guardLog[guardId][i] += 1 # each guard's histogram: 00-59: sleep incidence count
+    else:
+        guardLog[guardId] = copy.deepcopy(sleepLog) # deep or shallow copy is ok (list comprehension would work too)
 
-mostFreqMinute = pickMaxFromDict(minuteLog)
-print(mostFreqMinute*guardID)
+# # (pick prime-sleep minute for each guard)
+incidenceLog = dict()
+for guardId in guardLog.keys():
+    mostFreqIncident = max(guardLog[guardId].values())
+    incidenceLog[guardId] = mostFreqIncident
+
+guardId = pickMaxFromDict(incidenceLog)
+primeSleptMinute = pickMaxFromDict(guardLog[guardId])
+incidents = guardLog[guardId][primeSleptMinute]
+
+# primeSleptMinute = guardLog[guardId]
+print(f"Guard #{guardId} got top sleep at minute {primeSleptMinute} ({incidents} times)")
+print(guardId*primeSleptMinute)

@@ -1,11 +1,9 @@
-x = [12, 50]
-y = [42, 58]
 
-for i, j in range(x,y):
-    print(i)
+
+
+
 
 # import re
-
 
 # def parse(line: str) -> tuple:
 #     res = expr.search(line)
