@@ -1,6 +1,15 @@
 
+def fun():
+    # print(f"x from fun: {x}")
+    x = 3
+    print(f"x from fun #2: {x}")
 
 
+if __name__ == "__main__":
+    x = 1
+    fun()
+
+    print(f"x from main: {x}")
 
 
 # import re

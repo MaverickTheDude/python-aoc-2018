@@ -67,55 +67,55 @@ def parse(line: str) -> tuple:
             day = day + 1
     return month, day, min, id
 
+if __name__ == "__main__":
+    PATTERN = "\[\d+-(\d+)-(\d+) (\d+):(\d+)\] (\w+) \#?(\w+)"
+    expr = re.compile(PATTERN)
+    fh = open("inputs/aoc-4.txt", 'r')
+    Log = dict()
+    Registry = list()
 
-PATTERN = "\[\d+-(\d+)-(\d+) (\d+):(\d+)\] (\w+) \#?(\w+)"
-expr = re.compile(PATTERN)
-fh = open("inputs/aoc-4.txt", 'r')
-Log = dict()
-Registry = list()
+    # build up the structure
+    for line in fh:
+        month, day, min, id = parse(line)
+        
+        if (month,day) in Log:
+            Log[(month,day)].append(min, id)
+        else:
+            Log[(month,day)] = Entry(min, id)
+            Registry.append((month,day))
+    Registry.sort() # note: you can compare tuples (pretty intuitively)
 
-# build up the structure
-for line in fh:
-    month, day, min, id = parse(line)
-    
-    if (month,day) in Log:
-        Log[(month,day)].append(min, id)
-    else:
-        Log[(month,day)] = Entry(min, id)
-        Registry.append((month,day))
-Registry.sort() # note: you can compare tuples (pretty intuitively)
+    # print the structure contents
+    # for elm in Registry:
+        # print(elm[0], "-", elm[1], ": ", Log[elm])
 
-# print the structure contents
-# for elm in Registry:
-    # print(elm[0], "-", elm[1], ": ", Log[elm])
+    # compute all guard sleep log
+    # (create empty dict[min]->incidents)
+    sleepLog = {}
+    for i in range(60):
+        sleepLog[i] = 0
 
-# compute all guard sleep log
-# (create empty dict[min]->incidents)
-sleepLog = {}
-for i in range(60):
-    sleepLog[i] = 0
+    # (create dict[#guard] -> 'dict[min]->incidents')
+    guardLog = {}
+    for entry in Log.values():
+        guardId = entry.guardId
+        if guardId in guardLog:
+            minutesList = entry.getSleepMinutes()
+            for i in minutesList:
+                guardLog[guardId][i] += 1 # each guard's histogram: 00-59: sleep incidence count
+        else:
+            guardLog[guardId] = copy.deepcopy(sleepLog) # deep or shallow copy is ok (list comprehension would work too)
 
-# (create dict[#guard] -> 'dict[min]->incidents')
-guardLog = {}
-for entry in Log.values():
-    guardId = entry.guardId
-    if guardId in guardLog:
-        minutesList = entry.getSleepMinutes()
-        for i in minutesList:
-            guardLog[guardId][i] += 1 # each guard's histogram: 00-59: sleep incidence count
-    else:
-        guardLog[guardId] = copy.deepcopy(sleepLog) # deep or shallow copy is ok (list comprehension would work too)
+    # # (pick prime-sleep minute for each guard)
+    incidenceLog = dict()
+    for guardId in guardLog.keys():
+        mostFreqIncident = max(guardLog[guardId].values())
+        incidenceLog[guardId] = mostFreqIncident
 
-# # (pick prime-sleep minute for each guard)
-incidenceLog = dict()
-for guardId in guardLog.keys():
-    mostFreqIncident = max(guardLog[guardId].values())
-    incidenceLog[guardId] = mostFreqIncident
+    guardId = pickMaxFromDict(incidenceLog)
+    primeSleptMinute = pickMaxFromDict(guardLog[guardId])
+    incidents = guardLog[guardId][primeSleptMinute]
 
-guardId = pickMaxFromDict(incidenceLog)
-primeSleptMinute = pickMaxFromDict(guardLog[guardId])
-incidents = guardLog[guardId][primeSleptMinute]
-
-# primeSleptMinute = guardLog[guardId]
-print(f"Guard #{guardId} got top sleep at minute {primeSleptMinute} ({incidents} times)")
-print(guardId*primeSleptMinute)
+    # primeSleptMinute = guardLog[guardId]
+    print(f"Guard #{guardId} got top sleep at minute {primeSleptMinute} ({incidents} times)")
+    print(guardId*primeSleptMinute)
