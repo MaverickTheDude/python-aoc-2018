@@ -6,10 +6,17 @@ def fun():
 
 
 if __name__ == "__main__":
-    x = 1
-    fun()
 
-    print(f"x from main: {x}")
+    x = [1, 2, 3, 4, 5]
+    z = x
+    z[1] = 10
+    print(z is x)
+    x = []
+    print(z is x)
+
+    # z = []
+
+    print(z)
 
 
 # import re
