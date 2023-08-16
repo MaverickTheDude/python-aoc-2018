@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<table class="table">
+    <!-- Table head -->
+    <thead>
+        <!-- table headings -->
+        <th>ID</th>
+        <th>Name</th>
+        <th>Age</th>
+        <th>Registration Number</th>
+    </thead>
+    <tbody>
+        {% for student in students %}
+            <!-- table row -->
+            <tr>
+                <td>{{student.id}}</td>
+                <td>{{student.name}}</td>
+                <td>{{student.age}}</td>
+                <td>{{student.registration_no}}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock content %}
