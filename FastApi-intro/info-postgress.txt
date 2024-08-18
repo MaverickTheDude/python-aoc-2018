@@ -1,0 +1,92 @@
+
+https://daylifetips.com/install-postgresql-server-on-pop_os/ (used)
+https://idroot.us/install-phppgadmin-ubuntu-22-04/ (helped)
+https://www.alibabacloud.com/blog/how-to-set-up-postgresql-and-phppgadmin-on-ubuntu-18-04_595558 (not checked)
+
+http://localhost/phppgadmin/
+
+Step 1. sudo apt install postgresql postgresql-client
+
+Step 2. Test PostgreSQL Server 14 connection
+
+To test if it can connect, use this command;
+
+val@pop-os:~$ sudo su - postgres
+[sudo] password for val:
+postgres@pop-os:~$
+
+From the image above, you can see that, a connection has been established. Then from here, you can proceed to launch PostgreSQL Server 14 on Pop!_OS.
+Step 3. Launch PostgreSQL
+
+To launch PostgreSQL Server 143 from the command prompt, use the following code;
+
+psql
+
+Below is the output;
+
+postgres@pop-os:~$ psql
+psql (14.3 (Ubuntu 14.3-0ubuntu0.22.04.1))
+Type "help" for help.
+
+postgres=#
+
+From the above output, you can see that the process above will enable you to install PostgreSQL Server 14/13 on Pop!_OS successfully. From here, we can play a bit with PostgreSQL since it has already been installed. To check users in PostgreSQL, run the command shown below;
+
+postgres=# \du
+Setting up postgresql (14+238) ...
+                                   List of roles
+ Role name |                         Attributes                         | Member of
+-----------+------------------------------------------------------------+-----------
+ postgres  | Superuser, Create role, Create DB, Replication, Bypass RLS | {}
+
+As you can see from the output above, you will see that there is only one user named postgres, now let’s try and change the password of the user named above. Below is how you do it;
+
+postgres=# alter user postgres with password 'test123';
+ALTER ROLE
+
+Once you see the output, ALTER ROLE, just know that the changes were successful and now the new password for user postgres is test123.
+Create New User on Postgres
+
+Since we only have one user, that is postgres, we can decide to add another user named user_1, below is how it is done;
+
+postgres=# create user user_1 with password 'test231';
+CREATE ROLE
+
+Once you see CREATE ROLE, you will know that user_1 with the password test231 has been created, and below is how we can check;
+
+ postgres=# \du
+Role name |                         Attributes                         | Member of
+-----------+------------------------------------------------------------+-----------
+ postgres  | Superuser, Create role, Create DB, Replication, Bypass RLS | {}
+ user_1    |                                                            | {}
+
+Before, we had just one user and that was postgres now we have added another user named user_1. However, our new user does not have any attributes like the postgres user. Lets us now allocate user_1 the privilege of superuser, check below for how it is done;
+
+postgres=# alter user user_1 with superuser;
+ALTER ROLE
+
+Now let’s check it the role was added successfully;
+
+ postgres=# \du
+ Role name |                         Attributes                         | Member of
+-----------+------------------------------------------------------------+-----------
+ postgres  | Superuser, Create role, Create DB, Replication, Bypass RLS | {}
+ user_1    | Superuser                                                  | {}
+
+As you can see, the privilege was added successfully as highlighted in the output above. In the case where you no longer need the extra user, just run the command below to drop that user;
+
+postgres=# drop user user_1;
+DROP ROLE
+
+The unwanted user has been deleted.
+Step 4. Install phpPgAdmin
+
+First, you need to quit the Postgres command prompt by tapping CTRL+D. It is very important to create a phpPgAdmin, so as to be able to manage the operations of a PostgreSQL database, as that is its work. To install one, use the commands below;
+
+sudo apt -y install phppgadmin php-pgsql 
+
+Once done with the installation, you can edit the lines shown in the image below by running the commands below, and typing false and true respectively.
+
+sudo vim /etc/phppgadmin/config.inc.php
+
+The first line is to allow login with privilege user accounts. The second line is to show only databases owned by the logged in user.

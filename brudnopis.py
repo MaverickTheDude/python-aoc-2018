@@ -1,40 +1,51 @@
+import math
 
-def fun():
-    # print(f"x from fun: {x}")
-    x = 3
-    print(f"x from fun #2: {x}")
 
+x = list()
+
+def foo():
+    xxx += 1 # this breaks the code, but can is there a way to modify global variable in python 
+    print(f"x = {xxx}")
 
 if __name__ == "__main__":
-
-    x = [1, 2, 3, 4, 5]
-    z = x
-    z[1] = 10
-    print(z is x)
-    x = []
-    print(z is x)
-
-    # z = []
-
-    print(z)
+    print(sum(x))
 
 
-# import re
+# # >python: select interpreter
+# import signal  
+# import sys  
+# import asyncio  
+# import aiohttp  
+# import json
 
-# def parse(line: str) -> tuple:
-#     res = expr.search(line)
-#     groups = res.groups()
-#     (m, d, h, min, x, id) = [elm for elm in groups]  # list comprehension on tuple
-#     if x == "Guard": id = int(id)
-#     else: id = -1
-#     return int(m), int(d), int(h), int(min), id
+# loop = asyncio.get_event_loop()  
+# client = aiohttp.ClientSession(loop=loop)
 
-# PATTERN = "\[\d+-(\d+)-(\d+) (\d+):(\d+)\] (\w+) \#?(\w+)"
-# expr = re.compile(PATTERN)
+# async def get_json(client, url):  
+#     async with client.get(url) as response:
+#         assert response.status == 200
+#         return await response.read()
 
+# async def get_reddit_top(subreddit, client):  
+#     data1 = await get_json(client, 'https://www.reddit.com/r/' + subreddit + '/top.json?sort=top&t=day&limit=5')
 
-# fh = open("inputs/aoc-4.txt", 'r')
-# for line in fh:
-#     m, d, h, min, id = parse(line)
-#     print(m,d,h,min,id)
+#     j = json.loads(data1.decode('utf-8'))
+#     for i in j['data']['children']:
+#         score = i['data']['score']
+#         title = i['data']['title']
+#         link = i['data']['url']
+#         print(str(score) + ': ' + title + ' (' + link + ')')
 
+#     print('DONE:', subreddit + '\n')
+
+# def signal_handler(signal, frame):  
+#     loop.stop()
+#     client.close()
+#     sys.exit(0)
+
+# signal.signal(signal.SIGINT, signal_handler)
+
+# asyncio.ensure_future(get_reddit_top('python', client))  
+# asyncio.ensure_future(get_reddit_top('programming', client))  
+# asyncio.ensure_future(get_reddit_top('compsci', client))  
+# loop.run_forever()
