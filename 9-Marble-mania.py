@@ -37,39 +37,81 @@ class Element:
             next = self._next._value
         return f'{previous}--{self._value}--{next}'
 
+class LinkedListIterator:
+    ''' Iterator class '''
+    def __init__(self, linkedList: LinkedList):
+        self._linkedList = linkedList
+        self._index = 0
+
+    def __next__(self):
+        ''''Returns the next value from the linked list '''
+        if self._index == self._linkedList.length:
+            raise StopIteration
+        
+        tmp: Element = self._linkedList.first
+        for _ in range(self._index):
+            tmp = tmp._next
+        self._index += 1
+        return tmp._value
 
 class LinkedList:
     # hardcoded for two-element init list
     def __init__(self, init: list):
         self.length: int = len(init)
-        # self.cursor: int = len(init)
+        self.cursor: int = 1
         first = Element(init[0], None, None)
         last  = Element(init[1], first, None)
         first._next = last
         self.first: Element = first
         self.last: Element = last
+        self.current: Element = last
 
     def append(self, value):
         self.last.add_after(value)
         self.last = self.last._next
         self.length += 1
+        
+    def place_at_pos_1(self, value: int):
+        self.first.add_after(value)
+        self.length += 1
 
     def __iterate_to_position(self, position: int) -> Element:
-        iterated: Element = self.first
-        cnt = 0
-        while (cnt != position):
-            cnt += 1
-            iterated = iterated._next
+        steps_relative = position - self.cursor
+        iterated: Element = self.current
+        for _ in range(abs(steps_relative)):
+            iterated = iterated._next if steps_relative > 0 else iterated._prev
             if iterated is None:
                 raise IndexError("premature end of list")
 
         return iterated
+    
+    def advance(self, steps_relative: int) -> None:
+        if self.cursor + steps_relative >= self.length:
+            raise IndexError("Cursor to be placed after the end of the list")
+        if self.cursor + steps_relative < 0:
+            raise IndexError("Cursor to be placed before the beginning of the list")
+        
+        tmp: Element = self.current
+        for _ in range(abs(steps_relative)):
+            tmp = tmp._next if steps_relative > 0 else tmp._prev
+        
+        self.current = tmp
+        self.cursor += steps_relative
+        
+    def reset_cursor(self, *, offset: int = 0):
+        tmp: Element = self.first
+        for _ in range(offset):
+            tmp = tmp._next
+        
+        self.current = tmp
+        self.cursor = offset
 
     def insert(self, position: int, value: int):
         if position < 0:
             raise IndexError("position is negative")
         if position > self.length:
             raise IndexError("position is longer than the list size")
+        
         if position == self.length:
             self.append(value)
             return
@@ -101,7 +143,17 @@ class LinkedList:
         removed._next = None
         removed._prev = None
         return removed._value
-
+    
+    def at(self, position: int) -> Element:
+        tmp: Element = self.first
+        for _ in range(position):
+            tmp = tmp._next
+        return tmp
+    
+    def debug_cursor(self) -> bool:
+        if self.at(self.cursor)._value == self.current._value:
+            return True
+        else: return False
 
     def __repr__(self) -> str:
         iterated: Element = self.first
@@ -113,64 +165,66 @@ class LinkedList:
             # print(out)
         return f'{out[0:-2]}]'
 
+    def __iter__(self):
+        return LinkedListIterator(self)
 
 class Marbles:
     def __init__(self, max_players: int):
-        # self._marbles: list = [0, 1]
         self._marbles: LinkedList = LinkedList([0, 1])
-        self._position: int = 1
         self._player: int = 1
         self._max_players: int = max_players
-
-    def special_operation(self) -> int:
-        if self._position >= 7:
-            new_index = self._position - 7
-        else:
-            # new_index = self._position - 7 + len(self._marbles)
-            new_index = self._position - 7 + self._marbles.length
         
-        removed = self._marbles.pop(new_index)
-
-        if self._position == 6:
-            new_index = 0
-        self._position = new_index
+    def special_operation(self) -> int:
+        if self.position() >= 7:
+            # deletion on the left of the cursor
+            new_index = -7
+            removed = self._marbles.pop(self.position() + new_index)
+            self._marbles.advance(new_index+1)
+            self._marbles.cursor -= 1
+        else:
+            # deletion on the right of the cursor
+            # ...implying a jump from marbles[0] to marbles[end] - can be improved by iterating from marbles.last backwards in much fewer steps
+            new_index = -7 + self._marbles.length
+            removed = self._marbles.pop(self.position() + new_index)
+            if self.position() == 6:
+                self._marbles.reset_cursor()
+            else:
+                self._marbles.advance(new_index)
 
         self.next_player()
         return removed
-
+    
+    
     def add_marble(self, marble: int):
         # position at last element
-        # if self._position + 1 == len(self._marbles):
-        if self._position + 1 == self._marbles.length:
-            self._marbles.insert(1, marble)
-            self._position = 1
-        # position at pre-last element
-        # elif self._position + 2 == len(self._marbles):
-        elif self._position + 2 == self._marbles.length:
-            self._marbles.append(marble)
-            self._position += 2
+        if self.position() + 1 == self._marbles.length:
+            self._marbles.place_at_pos_1(marble)
+            self._marbles.reset_cursor(offset=1)
         else:
-            self._marbles.insert(self._position + 2, marble)
-            self._position += 2
+            self._marbles.insert(self.position() + 2, marble)
+            self._marbles.advance(2)
         
         self.next_player()
 
-    def get_player(self): return self._player
 
+    def get_player(self): return self._player
+    
+    def position(self): return self._marbles.cursor
+    
     def next_player(self) -> None:
         next_player_index =  self._player+1 if self._player < self._max_players else 1
         self._player = next_player_index
 
     def __repr__(self) -> str:
-        marbles_marked = [f'({val})' if it == self._position else str(val) for (it,val) in enumerate(self._marbles)]
+        marbles_marked = [f'({val})' if it == self.position() else str(val) for (it,val) in enumerate(self._marbles)]
         return f'[{next(turn)}/{self._player}] [' + ' '.join(marbles_marked) + ']'
         
 
 if __name__ == "__main__":
-    # Nplayers = 423
-    # last_marble_value = 71944  # AKA last marble's worthness (slightly confusing)
+    Nplayers = 423
+    last_marble_value = 7194400  # AKA last marble's worthness (slightly confusing)
     Nplayers = 30
-    last_marble_value = 5807  # AKA last marble's worthness (slightly confusing)
+    last_marble_value = 5807
     turn = generator_number()
     players_score = dict()
     field = Marbles(Nplayers)
