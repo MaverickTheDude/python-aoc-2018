@@ -1,4 +1,6 @@
 import re
+import time
+import numpy as np
 
 INITIAL_STATE: str = "..#..###...#####.#.#...####.#..####..###.##.#.#.##.#....#....#.####...#....###.###..##.#....#######"
 
@@ -36,7 +38,7 @@ def get_new_state(state_old: str, rules_: dict) -> str:
 
     # remove leading empty spots
     remove_cnt = 0
-    for i in range(get_new_state.origin):
+    for i in range(len(state_new)):
         if state_new[i] == '.':
             remove_cnt += 1
         else:
@@ -68,6 +70,13 @@ def apply_rule(state: str, location: int, rules_: dict) -> str:
     return rules_[local_state]
 
 
+def calculate_sum(state: str) -> int:
+    sum = 0
+    for i in range(len(state)):
+        if state[i] == '#':
+            sum += i - get_new_state.origin
+    return sum
+
 # initialization of 'static' variable
 get_new_state.origin = 0
 
@@ -75,19 +84,22 @@ if __name__ == "__main__":
     rules = read_input()
     plants_length = len(INITIAL_STATE)
 
+    start = time.time()
     new_state = INITIAL_STATE
-    for _ in range(20):
+    oldsum = calculate_sum(new_state)
+    for i in range(400):
         new_state = get_new_state(new_state, rules)
-        print(f'{new_state} \t at {get_new_state.origin}')
+        # diff = calculate_sum(new_state) - oldsum
+        # print(f"{new_state} \t at {get_new_state.origin} \t iter: {i+1} \t sum: {calculate_sum(new_state)} \t diff: {diff}")
+        # oldsum = calculate_sum(new_state)
 
-    sum = 0
-    for i in range(len(new_state)):
-        if new_state[i] == '.':
-            continue
-        sum += i - get_new_state.origin
-        print(f'# at {i}')
-
+    elapsed = time.time() - start
+    print(f'elapsed: {elapsed:.3f} s')
 
     print(new_state)
+    sum = calculate_sum(new_state)
     print(f'origin: {get_new_state.origin}, total length: {len(new_state)}, sum: {sum}')
 
+    p = np.polyfit([200, 400], [11962, 22562], 1)
+    value = np.polyval(p, 5e10)
+    print(f"value = {np.ceil(value)}")
